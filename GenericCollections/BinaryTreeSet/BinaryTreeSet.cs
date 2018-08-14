@@ -7,17 +7,27 @@ namespace GenericCollections
 {
     public class BinaryTreeSet<T> : ISet<T>
     {
+        #region Fields
+        private readonly IComparer<T> _comparer;
         private BinarySearchTree<T> _tree;
-        // TODO: add version
+        #endregion
 
-        public BinaryTreeSet()
+        public BinaryTreeSet(IComparer<T> comparer = null)
         {
-            _tree = new BinarySearchTree<T>();
+            _comparer = comparer ??
+               (typeof(IComparable<T>).IsAssignableFrom(typeof(T)) ||
+               typeof(IComparable).IsAssignableFrom(typeof(T)) ?
+               _comparer = Comparer<T>.Default :
+               throw new ArgumentNullException("Comparer's indefined for type of T!"));
 
-            Count = 0;
+            _tree = new BinarySearchTree<T>(_comparer);
         }
 
-        public int Count { get; private set; }
+        public BinaryTreeSet(Comparison<T> comparison) : this(Comparer<T>.Create(comparison))
+        {
+        }
+
+        public int Count => _tree.Count;
 
         public bool IsReadOnly
         {
@@ -36,19 +46,12 @@ namespace GenericCollections
 
             _tree.Add(item);
 
-            bool result = Contains(item);
-            if (result)
-            {
-                Count++;
-            }
-
-            return result;
+            return Contains(item);
         }
 
         public void Clear()
         {
             _tree.Clear();
-            Count = 0;
         }
         
         public bool Contains(T item)
@@ -132,12 +135,12 @@ namespace GenericCollections
 
         public bool IsSubsetOf(IEnumerable<T> other)
         {
-            return IsSubset(this, other);
+            return IsSubset(other, this);
         }
 
         public bool IsSupersetOf(IEnumerable<T> other)
         {
-            return IsSubset(other, this);
+            return IsSubset(this, other);
         }
 
         public bool Overlaps(IEnumerable<T> other)
@@ -172,16 +175,9 @@ namespace GenericCollections
 
             _tree.Remove(item);
 
-            bool result = !Contains(item);
-            if (result)
-            {
-                Count--;
-            }
-
-            return result;
+            return !Contains(item);
         }
-
-        // TODO
+        
         public bool SetEquals(IEnumerable<T> other)
         {
             if (other == null)
@@ -189,11 +185,23 @@ namespace GenericCollections
                 throw new ArgumentNullException(nameof(other));
             }
 
-            BinaryTreeSet<T> set = other as BinaryTreeSet<T>;
+            if (Count != other.Count())
+            {
+                return false;
+            }
 
+            T[] array = other.ToArray();
 
+            int i = 0;
+            foreach (var element in _tree)
+            {
+                if(_comparer.Compare(element, array[i++]) != 0)
+                {
+                    return false;
+                }
+            }
 
-            throw new NotImplementedException();
+            return true;
         }
         
         public void SymmetricExceptWith(IEnumerable<T> other)
@@ -207,7 +215,7 @@ namespace GenericCollections
             {
                 UnionWith(other);
             }
-            else if (other == this)
+            else if (SetEquals(other))
             {
                 Clear();
             }

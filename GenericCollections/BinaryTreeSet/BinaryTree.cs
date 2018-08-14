@@ -7,8 +7,8 @@ namespace GenericCollections
     public sealed class BinarySearchTree<T> : IEnumerable<T>
     {
         #region Fields
-        private Node<T> _root;
         private readonly IComparer<T> _comparer;
+        private Node<T> _root;
         private int _version;
         #endregion
 
@@ -105,31 +105,13 @@ namespace GenericCollections
             _version++;
         }
 
+        /// <summary>
+        /// Check tree on containing item
+        /// </summary>
+        /// <param name="item"> Item for finding </param>
+        /// <returns> If tree containts item, it's true, else - false </returns>
         public bool Contains(T item) 
             => IsContain(_root, item);
-
-        private bool IsContain(Node<T> node, T item)
-        {
-            if (node != null)
-            {
-                if (_comparer.Compare(item, node.Value) == 0)
-                {
-                    return true;
-                }
-
-                if (_comparer.Compare(item, node.Value) < 0)
-                {
-                    return IsContain(node.Left, item);
-                }
-
-                if (_comparer.Compare(item, node.Value) > 0)
-                {
-                    return IsContain(node.Right, item);
-                }
-            }
-
-            return false;
-        }
 
         /// <summary>
         /// Use in base inorder of tree
@@ -231,9 +213,44 @@ namespace GenericCollections
             return _root == null;
         }
 
-        public void Remove(T value)
+        /// <summary>
+        /// Remove value form tree
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns> If value is in tree, true, else - false</returns>
+        public bool Remove(T value)
         {
-            throw new NotImplementedException();
+            if (_root == null)
+            {
+                return false;
+            }
+
+            Node<T> parent = null,
+                node = FindNode(_root, value, parent); 
+            
+            if (node == null)
+            {
+                return false;
+            }
+
+            Count--;
+
+            if (node.Right == null)
+            {
+                RelocateNode(parent, node.Left, node.Value);
+            }
+            else if (node.Right.Left == null)
+            {
+                node.Right.Left = node.Left;
+
+                RelocateNode(parent, node.Right, node.Value);
+            }
+            else
+            {
+                BalanceTree(parent, node);
+            }
+
+            return true;
         }
         #endregion
 
@@ -298,6 +315,110 @@ namespace GenericCollections
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        private Node<T> FindNode(Node<T> node, T value, Node<T> parent)
+        {
+            if (node != null)
+            {
+                int result = _comparer.Compare(node.Value, value);
+
+                if (result == 0)
+                {
+                    return node;
+                }
+
+                parent = node;
+
+                if (result > 0)
+                {
+                    return FindNode(node.Left, value, parent);
+                }
+                else if (result < 0)
+                {
+                    return FindNode(node.Right, value, parent);
+                }
+            }
+
+            return null;
+        }
+
+        private void BalanceTree(Node<T> parent, Node<T> node)
+        {
+            Node<T> leftBranch = node.Right.Left,
+                parentOfBranch = node.Right;
+
+            while (leftBranch.Left != null)
+            {
+                parentOfBranch = leftBranch;
+                leftBranch = leftBranch.Left;
+            }
+
+            parentOfBranch.Left = leftBranch.Right;
+
+            leftBranch.Left = node.Left;
+            leftBranch.Right = node.Right;
+
+            if (parent == null)
+            {
+                _root = leftBranch;
+            }
+            else
+            {
+                int result = _comparer.Compare(parent.Value, node.Value);
+
+                if (result > 0)
+                {
+                    parent.Left = leftBranch;
+                }
+                else if (result < 0)
+                {
+                    parent.Right = leftBranch;
+                }
+            }
+        }
+
+        private bool IsContain(Node<T> node, T item)
+        {
+            if (node != null)
+            {
+                if (_comparer.Compare(item, node.Value) == 0)
+                {
+                    return true;
+                }
+
+                if (_comparer.Compare(item, node.Value) < 0)
+                {
+                    return IsContain(node.Left, item);
+                }
+
+                if (_comparer.Compare(item, node.Value) > 0)
+                {
+                    return IsContain(node.Right, item);
+                }
+            }
+
+            return false;
+        }
+
+        private void RelocateNode(Node<T> parent, Node<T> node, T value)
+        {
+            if (parent == null)
+            {
+                _root = node;
+            }
+            else
+            {
+                int result = _comparer.Compare(parent.Value, value);
+                if (result > 0)
+                {
+                    parent.Left = node;
+                }
+                else if (result < 0)
+                {
+                    parent.Right = node;
+                }
+            }
         }
         #endregion
     }

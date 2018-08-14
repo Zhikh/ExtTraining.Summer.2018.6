@@ -105,10 +105,9 @@ namespace GenericCollections
         /// Check tree on containing item
         /// </summary>
         /// <param name="item"> Item for finding </param>
-        /// <returns> If tree containts item, it's true, else - false </returns>
+        /// <returns> If tree contains item, it's true, else - false </returns>
         public bool Contains(T item) 
             => IsContain(_root, item);
-
 
         /// <summary>
         /// Clear tree
@@ -120,7 +119,7 @@ namespace GenericCollections
         }
 
         /// <summary>
-        /// Use in base inorder of tree
+        /// Use in base in order of tree
         /// </summary>
         /// <returns> IEnumerator </returns>
         /// <exception cref="ArgumentException"> If collection is changed </exception>
@@ -211,7 +210,7 @@ namespace GenericCollections
         }
 
         /// <summary>
-        /// Chech tree on cantaining elements
+        /// Check tree on containing elements
         /// </summary>
         /// <returns></returns>
         public bool IsEmpty()
@@ -257,6 +256,11 @@ namespace GenericCollections
             }
 
             return true;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
         #endregion
 
@@ -316,11 +320,6 @@ namespace GenericCollections
 
                 yield return node.Value;
             }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
         }
 
         private Node<T> FindNode(Node<T> node, T value, ref Node<T> parent)

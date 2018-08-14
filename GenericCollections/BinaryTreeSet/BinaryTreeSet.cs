@@ -63,7 +63,7 @@ namespace GenericCollections
         {
             int i = 0;
             int j = 0;
-            foreach(var element in _tree)
+            foreach (var element in _tree)
             {
                 if (i == arrayIndex)
                 {
@@ -195,7 +195,7 @@ namespace GenericCollections
             int i = 0;
             foreach (var element in _tree)
             {
-                if(_comparer.Compare(element, array[i++]) != 0)
+                if (_comparer.Compare(element, array[i++]) != 0)
                 {
                     return false;
                 }

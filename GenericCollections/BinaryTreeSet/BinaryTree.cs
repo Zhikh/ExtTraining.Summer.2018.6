@@ -112,17 +112,17 @@ namespace GenericCollections
         {
             if (node != null)
             {
-                if (_comparer.Compare(item, _root.Value) == 0)
+                if (_comparer.Compare(item, node.Value) == 0)
                 {
                     return true;
                 }
 
-                if (_comparer.Compare(item, _root.Value) < 0)
+                if (_comparer.Compare(item, node.Value) < 0)
                 {
                     return IsContain(node.Left, item);
                 }
 
-                if (_comparer.Compare(item, _root.Value) > 0)
+                if (_comparer.Compare(item, node.Value) > 0)
                 {
                     return IsContain(node.Right, item);
                 }

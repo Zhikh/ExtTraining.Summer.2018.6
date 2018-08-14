@@ -27,11 +27,6 @@ namespace GenericCollections
                throw new ArgumentNullException("Comparer's indefined for type of T!"));
         }
 
-        internal void Clear()
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// Initialize BinarySearchTree
         /// </summary>
@@ -67,6 +62,7 @@ namespace GenericCollections
             if (IsEmpty())
             {
                 _root = node;
+                Count++;
                 return;
             }
 
@@ -112,6 +108,16 @@ namespace GenericCollections
         /// <returns> If tree containts item, it's true, else - false </returns>
         public bool Contains(T item) 
             => IsContain(_root, item);
+
+
+        /// <summary>
+        /// Clear tree
+        /// </summary>
+        public void Clear()
+        {
+            Count = 0;
+            _root = null;
+        }
 
         /// <summary>
         /// Use in base inorder of tree
@@ -226,7 +232,7 @@ namespace GenericCollections
             }
 
             Node<T> parent = null,
-                node = FindNode(_root, value, parent); 
+                node = FindNode(_root, value, ref parent); 
             
             if (node == null)
             {
@@ -317,7 +323,7 @@ namespace GenericCollections
             return GetEnumerator();
         }
 
-        private Node<T> FindNode(Node<T> node, T value, Node<T> parent)
+        private Node<T> FindNode(Node<T> node, T value, ref Node<T> parent)
         {
             if (node != null)
             {
@@ -332,11 +338,11 @@ namespace GenericCollections
 
                 if (result > 0)
                 {
-                    return FindNode(node.Left, value, parent);
+                    return FindNode(node.Left, value, ref parent);
                 }
                 else if (result < 0)
                 {
-                    return FindNode(node.Right, value, parent);
+                    return FindNode(node.Right, value, ref parent);
                 }
             }
 
